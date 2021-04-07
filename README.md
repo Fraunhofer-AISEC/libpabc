@@ -8,7 +8,7 @@ One problem with the concept of aggregated claims [1] in combination with JSON-W
 Anonymous credentials such as Camenisch-Lysyanskaya [2] using blind signature schemes such as BBS+ [3] can be used to enable selective disclosure of attributes, but such signature schemes are not explicitly defined for the OIDC Aggregated Claims standard.
 
 For the [DISSENS](https://wiki.geant.org/display/NGITrust/Funded+Projects+Call+2#FundedProjectsCall2-DISSENS) project, we have implemented libpabc:
-A library that supports non-interactive zero knowledge proofs for anonymoud credentials using pairings on a BLS12-381 curve [4].
+A library that supports non-interactive zero knowledge proofs for anonymous credentials using pairings on a BLS12-381 curve [4].
 In combination with a suitable SSI system, users can selectively disclose attributes from a credential without invalidating the issuer's signature.
 
 1. https://openid.net/specs/openid-connect-core-1_0.html#AggregatedExample
