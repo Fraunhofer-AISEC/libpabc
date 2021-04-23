@@ -1,0 +1,5 @@
+add_subdirectory(setup_test)
+add_subdirectory(cred_request_test)
+add_subdirectory(cred_issue_test)
+add_subdirectory(proof_test)
+add_subdirectory(verify_test)
