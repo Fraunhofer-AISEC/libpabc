@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
 // using the relic library https://github.com/relic-toolkit/
 
 #ifndef VERIFIER_H
@@ -34,6 +32,6 @@ struct pabc_verifier_mem
 };
 
 enum pabc_status pabc_verifier_mem_init (struct pabc_verifier_mem **const mem);
-enum pabc_status pabc_verifier_mem_free (struct pabc_verifier_mem **const mem);
+void pabc_verifier_mem_free (struct pabc_verifier_mem **const mem);
 
 #endif // VERIFIER_H

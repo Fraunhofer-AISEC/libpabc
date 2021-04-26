@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
 // using the relic library https://github.com/relic-toolkit/
 
 #ifndef ISSUER_H
@@ -27,7 +25,7 @@ enum pabc_status new_issuer_public_key (
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_issuer_public_key **ipk);
 
-enum pabc_status free_issuer_public_key (
+void free_issuer_public_key (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_issuer_public_key **ipk);
@@ -52,6 +50,6 @@ struct pabc_issuer_mem
 };
 
 enum pabc_status pabc_issuer_mem_init (struct pabc_issuer_mem **const mem);
-enum pabc_status pabc_issuer_mem_free (struct pabc_issuer_mem **const mem);
+void pabc_issuer_mem_free (struct pabc_issuer_mem **const mem);
 
 #endif // ISSUER_H

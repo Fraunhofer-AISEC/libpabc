@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_USER_H
 #define PABC_USER_H
 
@@ -83,9 +79,8 @@ pabc_populate_user_context (struct pabc_context *const ctx,
  * attributes).
  * \param [in,out] usr_ctx The context to free (previously allocated by
  * ::pabc_new_user_context).
- * \return Success status.
  */
-enum pabc_status pabc_free_user_context (
+void pabc_free_user_context (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_user_context **usr_ctx);
@@ -135,9 +130,8 @@ enum pabc_status pabc_new_credential_request (
  * attributes).
  * \param [in,out] cr The structure to free (previously allocated by
  * ::pabc_new_credential_request).
- * \return Success status.
  */
-enum pabc_status pabc_free_credential_request (
+void pabc_free_credential_request (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_credential_request **cr);
@@ -165,12 +159,11 @@ pabc_new_proof (struct pabc_context const *const ctx,
  * attributes).
  * \param [in,out] proof The structure to free (previously allocated by
  * ::pabc_new_proof)
- * \return Success status.
  */
-enum pabc_status
-pabc_free_proof (struct pabc_context const *const ctx,
-                 struct pabc_public_parameters const *const public_parameters,
-                 struct pabc_blinded_proof **proof);
+void pabc_free_proof (
+  struct pabc_context const *const ctx,
+  struct pabc_public_parameters const *const public_parameters,
+  struct pabc_blinded_proof **proof);
 
 /*!
  * Generates a blinded proof. The user must first decide which attributes to

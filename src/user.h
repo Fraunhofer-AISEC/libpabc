@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
 // using the relic library https://github.com/relic-toolkit/
 
 #ifndef USER_H
@@ -72,7 +70,7 @@ enum pabc_status pabc_new_attribute_predicates (
  * \param [in] public_parameters The public parameters to use (number of
  * attributes).
  */
-enum pabc_status pabc_free_attribute_predicates (
+void pabc_free_attribute_predicates (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_attribute_predicates_D_I **DI);
@@ -106,6 +104,6 @@ struct pabc_user_mem
 };
 
 enum pabc_status pabc_user_mem_init (struct pabc_user_mem **const mem);
-enum pabc_status pabc_user_mem_free (struct pabc_user_mem **const mem);
+void pabc_user_mem_free (struct pabc_user_mem **const mem);
 
 #endif // USER_H

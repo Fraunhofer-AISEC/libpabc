@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_JSON_CONSTANTS_H
 #define PABC_JSON_CONSTANTS_H
 

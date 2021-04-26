@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "../../src/cli_helper.h"
 #include <pabc/pabc.h>
 #include <stdio.h>

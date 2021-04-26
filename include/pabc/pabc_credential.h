@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_CREDENTIAL_H
 #define PABC_CREDENTIAL_H
 

@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "verifier.h"
 
 enum pabc_status
@@ -314,11 +310,11 @@ pabc_verifier_mem_init (struct pabc_verifier_mem **const mem)
 }
 
 
-enum pabc_status
+void
 pabc_verifier_mem_free (struct pabc_verifier_mem **const mem)
 {
   if (! mem)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   RLC_TRY {
     bn_free ((*mem)->AttrsI);
     bn_free ((*mem)->cp);
@@ -332,9 +328,7 @@ pabc_verifier_mem_free (struct pabc_verifier_mem **const mem)
     gt_free ((*mem)->lhs);
     gt_free ((*mem)->rhs);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
-  RLC_FINALLY {
-    PABC_FREE_NULL (*mem);
-    return PABC_OK;
-  }
+  RLC_CATCH_ANY {}
+  RLC_FINALLY {}
+  PABC_FREE_NULL (*mem);
 }

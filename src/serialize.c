@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "serialize.h"
 
 // TODO duplicated code b64 encode/decode, adding to json obj / json array ...
@@ -82,8 +78,8 @@ json_add_obj_g1_t (json_t *const json, g1_t *const payload,
     int b64_length_end = base64_encode_blockend (str + b64_length, &_state);
     // overwrite trailing \n
     str[b64_length + b64_length_end - 1] =
-      '\0';   // ok, because base64 needs for chars for 3 bytes and we allocated
-              // twice the input length
+      '\0';   // ok, because base64 uses at most ceil((4/3) * n) for encoding an
+              // n character string and str is allocated to hold 2n
 
     // dump json
     int r = json_object_set_new (json, name, json_pack ("s", str));
@@ -1486,31 +1482,6 @@ pabc_encode_proof (struct pabc_context const *const ctx,
     json_decref (json_root);
     print_and_return (PABC_JANSSON_FAIL);
   }
-  /*
-  json_t *array = json_array ();
-  if (array == NULL)
-  {
-    json_decref (json_root);
-    print_and_return (PABC_JANSSON_FAIL);
-  }
-  for (size_t i = 0; i < public_parameters->nr_of_attributes; ++i)
-  {
-    pabc_status = json_append_array_bn_t (array, &proof->ProofSAttrs[i]);
-    if (pabc_status != PABC_OK)
-    {
-      json_decref (array);
-      json_decref (json_root);
-      print_and_return (pabc_status);
-    }
-  }
-  int r = json_object_set_new (json_root, PABC_JSON_SATTRS_KEY, array);
-  if (r != 0)
-  {
-    json_decref (array);
-    json_decref (json_root);
-    print_and_return (pabc_status);
-  }
-  */
 
   // bn_t nonce
   // TODO could adapt to use pabc_{encode,decode}_nonce here

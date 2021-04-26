@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "hash.h"
 
 enum pabc_status
@@ -274,16 +270,14 @@ new_hash_container (struct hash_container **hash_container)
 }
 
 
-enum pabc_status
+void
 free_hash_container (struct hash_container **hash_container)
 {
   if (hash_container == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*hash_container == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   PABC_FREE_NULL ((*hash_container)->ptr);
   PABC_FREE_NULL (*hash_container);
-
-  return PABC_OK;
 }

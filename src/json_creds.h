@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef JSON_CREDS_H
 #define JSON_CREDS_H
 
