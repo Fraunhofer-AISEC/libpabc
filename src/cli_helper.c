@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "cli_helper.h"
 
 static char pabc_dir[PATH_MAX + 1];

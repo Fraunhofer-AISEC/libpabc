@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "issuer.h"
 
 enum pabc_status
@@ -64,30 +60,21 @@ pabc_new_public_parameters (struct pabc_context const *const ctx,
 }
 
 
-enum pabc_status
-pabc_free_public_parameters (struct pabc_context const *const ctx,
-                             struct pabc_public_parameters **public_parameters)
+void
+pabc_free_public_parameters (
+  struct pabc_context const *const ctx,
+  struct pabc_public_parameters **public_parameters)
 {
-  if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
-  if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
-  if (*public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+  if (! public_parameters)
+    return;
+  if (! *public_parameters)
+    return;
 
-  enum pabc_status pabc_status;
+  free_issuer_public_key (ctx, *public_parameters, &(*public_parameters)->ipk);
 
-  pabc_status = free_issuer_public_key (ctx, *public_parameters,
-                                        &(*public_parameters)->ipk);
-  if (pabc_status != PABC_OK)
-    print_and_return (pabc_status); // TODO or continue?
-
-  pabc_status = pabc_free_attributes (ctx, &(*public_parameters)->attrs);
-  if (pabc_status != PABC_OK)
-    print_and_return (pabc_status); // TODO or continue?
+  pabc_free_attributes (ctx, &(*public_parameters)->attrs);
 
   PABC_FREE_NULL (*public_parameters);
-  return PABC_OK;
 }
 
 
@@ -132,7 +119,10 @@ pabc_populate_issuer_public_key (
 
   struct pabc_issuer_public_key *ipk = public_parameters->ipk;
   if (ipk == NULL)
+  {
+    pabc_issuer_mem_free (&mem);
     print_and_return (PABC_UNINITIALIZED);
+  }
 
   RLC_TRY {
     // 1. Sample a random element x from Zp, and compute w = g2^x.
@@ -156,15 +146,19 @@ pabc_populate_issuer_public_key (
     g1_mul (mem->t2, ipk->_g1, mem->r);
 
     // C : C = H(t1 || t2 || g2 || _g1 || w || _g2)
-    // TODO remove ASSERT
-    PABC_ASSERT (reset_hash (ctx));
-    PABC_ASSERT (hash_add_g2 (ctx, mem->t1));
-    PABC_ASSERT (hash_add_g1 (ctx, mem->t2));
-    PABC_ASSERT (hash_add_g2 (ctx, ctx->g2_gen));
-    PABC_ASSERT (hash_add_g1 (ctx, ipk->_g1));
-    PABC_ASSERT (hash_add_g2 (ctx, ipk->w));
-    PABC_ASSERT (hash_add_g1 (ctx, ipk->_g2));
-    PABC_ASSERT (compute_hash (ctx, ipk->C));
+    status = reset_hash (ctx);
+    status |= hash_add_g2 (ctx, mem->t1);
+    status |= hash_add_g1 (ctx, mem->t2);
+    status |= hash_add_g2 (ctx, ctx->g2_gen);
+    status |= hash_add_g1 (ctx, ipk->_g1);
+    status |= hash_add_g2 (ctx, ipk->w);
+    status |= hash_add_g1 (ctx, ipk->_g2);
+    status |= compute_hash (ctx, ipk->C);
+    if (status != PABC_OK)
+    {
+      pabc_issuer_mem_free (&mem);
+      print_and_return (status);
+    }
 
     // 4. S = (r + C * x) mod p
     bn_mul (ipk->S, ipk->C, isk->x);           // S = C * x
@@ -222,23 +216,22 @@ pabc_new_issuer_secret_key (struct pabc_context const *const ctx,
 }
 
 
-enum pabc_status
+void
 pabc_free_issuer_secret_key (struct pabc_context const *const ctx,
                              struct pabc_issuer_secret_key **isk)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (isk == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*isk == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   RLC_TRY { bn_free ((*isk)->x); }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
 
   PABC_FREE_NULL (*isk);
-  return PABC_OK;
 }
 
 
@@ -314,20 +307,20 @@ new_issuer_public_key (
 }
 
 
-enum pabc_status
+void
 free_issuer_public_key (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_issuer_public_key **ipk)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (ipk == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*ipk == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   RLC_TRY {
     g2_free ((*ipk)->w);
@@ -342,12 +335,10 @@ free_issuer_public_key (
       g1_free ((*ipk)->HAttrs[i]);
     PABC_FREE_NULL ((*ipk)->HAttrs);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
 
   PABC_FREE_NULL (*ipk);
-
-  return PABC_OK;
 }
 
 
@@ -380,11 +371,17 @@ pabc_issuer_credential_sign (
 
   status = pabc_nonce_compare (ctx, expected_nonce, cr->nonce);
   if (PABC_OK != status)
+  {
+    pabc_issuer_mem_free (&mem);
     print_and_return (status);
+  }
 
   status = verify_pok (ctx, cr, public_parameters->ipk);
   if (PABC_OK != status)
+  {
+    pabc_issuer_mem_free (&mem);
     print_and_return (status);
+  }
 
   /*
      Sample two random elements e, s from Zp.
@@ -405,9 +402,14 @@ pabc_issuer_credential_sign (
     g1_set_infty (mem->MulAll);
     for (size_t i = 0; i < public_parameters->nr_of_attributes; ++i)
     {
-      PABC_ASSERT (reset_hash (ctx));
-      PABC_ASSERT (hash_add_str (ctx, cr->plain_attrs->attribute_values[i]));
-      PABC_ASSERT (compute_hash (ctx, mem->AttrsI));
+      status = reset_hash (ctx);
+      status |= hash_add_str (ctx, cr->plain_attrs->attribute_values[i]);
+      status |= compute_hash (ctx, mem->AttrsI);
+      if (status != PABC_OK)
+      {
+        pabc_issuer_mem_free (&mem);
+        print_and_return (status);
+      }
       g1_mul (mem->temp, public_parameters->ipk->HAttrs[i], mem->AttrsI);
       g1_add (mem->MulAll, mem->MulAll, mem->temp);
     }
@@ -419,8 +421,13 @@ pabc_issuer_credential_sign (
     g1_mul (cred->A, cred->B, mem->mod_inv);
 
     // copy plain attributes
-    PABC_ASSERT (
-      pabc_plain_attrs_deep_copy (ctx, &cred->plain_attrs, cr->plain_attrs));
+    status =
+      pabc_plain_attrs_deep_copy (ctx, &cred->plain_attrs, cr->plain_attrs);
+    if (status != PABC_OK)
+    {
+      pabc_issuer_mem_free (&mem);
+      print_and_return (status);
+    }
 
     g1_copy (cred->Nym, cr->Nym);
 
@@ -491,7 +498,7 @@ pabc_new_credential (
 }
 
 
-enum pabc_status
+void
 pabc_free_credential (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
@@ -499,13 +506,13 @@ pabc_free_credential (
   struct pabc_credential **cred)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (cred == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*cred == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   if ((*cred)->plain_attrs != NULL)
     pabc_free_plain_attrs (ctx, &(*cred)->plain_attrs);
@@ -517,12 +524,10 @@ pabc_free_credential (
     bn_free ((*cred)->s);
     g1_free ((*cred)->Nym);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
 
   PABC_FREE_NULL (*cred);
-
-  return PABC_OK;
 }
 
 
@@ -568,13 +573,17 @@ verify_pok (struct pabc_context *const ctx,
 
     // _P = _t1||Hsk||Nym||nonce
 
-    // TODO remove ASSERT
-    PABC_ASSERT (reset_hash (ctx));
-    PABC_ASSERT (hash_add_g1 (ctx, mem->t1bar));
-    PABC_ASSERT (hash_add_g1 (ctx, ipk->HSk));
-    PABC_ASSERT (hash_add_g1 (ctx, cr->Nym));
-    PABC_ASSERT (hash_add_bn (ctx, cr->nonce->nonce));
-    PABC_ASSERT (compute_hash (ctx, mem->c_bar));
+    status = reset_hash (ctx);
+    status |= hash_add_g1 (ctx, mem->t1bar);
+    status |= hash_add_g1 (ctx, ipk->HSk);
+    status |= hash_add_g1 (ctx, cr->Nym);
+    status |= hash_add_bn (ctx, cr->nonce->nonce);
+    status |= compute_hash (ctx, mem->c_bar);
+    if (status != PABC_OK)
+    {
+      pabc_issuer_mem_free (&mem);
+      print_and_return (status);
+    }
 
     if (bn_cmp (mem->c_bar, cr->C) == RLC_EQ)
       verify_result = PABC_OK;
@@ -585,93 +594,6 @@ verify_pok (struct pabc_context *const ctx,
   RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
   RLC_FINALLY {}
 
-  return verify_result;
-}
-
-
-/*
- * TODO this is how the check should be performed according to
- * https://github.com/ontio/ontology-crypto/wiki/Anonymous-Credential#12-non-interactive-proof-of-knowledge-pok-protocol
- */
-int
-verify_pok2 (struct pabc_context *const ctx,
-             struct pabc_credential_request *const cr,
-             struct pabc_issuer_public_key *const ipk)
-{
-  if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
-  if (cr == NULL)
-    print_and_return (PABC_UNINITIALIZED);
-  if (ipk == NULL)
-    print_and_return (PABC_UNINITIALIZED);
-
-  /*
-   * _t1 = g2^S * w^(-c)
-   *
-   * _t2 = _g1^S * _g2^(-c)
-   *
-   * _P = _t1 || _t2 || g2 || _g1 || w || _g2
-   *
-   * _C = hash_to_int(_P)
-   *
-   * // use C to compare with _C, which was calculated just now
-   * if C == _C {
-   *       return true
-   * } else {
-   *       return false
-   * }
-   */
-  int verify_result = 1;
-  RLC_TRY {
-    // _t1 = g2^S * w^(-c)
-    g2_t t1bar;
-    g2_null (t1bar);
-    g2_new (t1bar);
-    g2_t temp_g2t;
-    g2_null (temp_g2t);
-    g2_new (temp_g2t);
-    g2_mul (t1bar, ctx->g2_gen, cr->S);
-    g2_neg (temp_g2t, ipk->w);
-    g2_mul (temp_g2t, temp_g2t, cr->C);
-    g2_add (t1bar, t1bar, temp_g2t);
-
-    // _t2 = _g1^S * _g2^(-c)
-    g1_t t2bar;
-    g1_null (t2bar);
-    g1_new (t2bar);
-    g1_t temp_g1t;
-    g1_null (temp_g1t);
-    g1_new (temp_g1t);
-    g1_mul (t2bar, ipk->_g1, cr->S);
-    g1_neg (temp_g1t, ipk->_g2);
-    g1_mul (temp_g1t, temp_g1t, cr->C);
-    g1_add (t2bar, t2bar, temp_g1t);
-
-    // _P = _t1 || _t2 || g2 || _g1 || w || _g2
-    bn_t c_bar;
-    bn_null (c_bar);
-    bn_new (c_bar);
-    reset_hash (ctx);
-    hash_add_g2 (ctx, t1bar);
-    hash_add_g1 (ctx, t2bar);
-    hash_add_g2 (ctx, ctx->g2_gen);
-    hash_add_g1 (ctx, ipk->_g1);
-    hash_add_g2 (ctx, ipk->w);
-    hash_add_g1 (ctx, ipk->_g2);
-    compute_hash (ctx, c_bar);
-
-    if (bn_cmp (c_bar, cr->C) == RLC_EQ)
-      verify_result = 0;
-
-    // clean up
-    g2_free (t1bar);
-    g2_free (temp_g2t);
-    g1_free (t2bar);
-    g1_free (temp_g1t);
-    bn_free (c_bar);
-  }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
-  RLC_FINALLY {}
   return verify_result;
 }
 
@@ -762,11 +684,11 @@ pabc_issuer_mem_init (struct pabc_issuer_mem **const mem)
 }
 
 
-enum pabc_status
+void
 pabc_issuer_mem_free (struct pabc_issuer_mem **const mem)
 {
   if (! mem)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   RLC_TRY {
     bn_free ((*mem)->AttrsI);
     bn_free ((*mem)->c_bar);
@@ -780,9 +702,7 @@ pabc_issuer_mem_free (struct pabc_issuer_mem **const mem)
     g1_free ((*mem)->temp_g1t);
     g2_free ((*mem)->t1);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
-  RLC_FINALLY {
-    PABC_FREE_NULL (*mem);
-    return PABC_OK;
-  }
+  RLC_CATCH_ANY {}
+  RLC_FINALLY {}
+  PABC_FREE_NULL (*mem);
 }

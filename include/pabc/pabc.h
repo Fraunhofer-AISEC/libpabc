@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef LIBPABC_H
 #define LIBPABC_H
 

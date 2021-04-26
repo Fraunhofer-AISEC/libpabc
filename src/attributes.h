@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
 // using the relic library https://github.com/relic-toolkit/
 
 #ifndef ATTRIBUTES_H
@@ -38,9 +36,8 @@ enum pabc_status pabc_new_plain_attrs (
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_plain_attributes **plain_attrs);
 
-enum pabc_status
-pabc_free_plain_attrs (struct pabc_context const *const ctx,
-                       struct pabc_plain_attributes **plain_attrs);
+void pabc_free_plain_attrs (struct pabc_context const *const ctx,
+                            struct pabc_plain_attributes **plain_attrs);
 
 enum pabc_status pabc_attrs_deep_copy (struct pabc_context const *const ctx,
                                        struct pabc_attributes **dest,

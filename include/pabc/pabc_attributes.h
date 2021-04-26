@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_ATTRIBUTES_H
 #define PABC_ATTRIBUTES_H
 
@@ -48,9 +44,8 @@ enum pabc_status pabc_new_attributes (struct pabc_context const *const ctx,
  *
  * \param [in] ctx The global context to use.
  * \param [in,out] attrs The structure to free.
- * \return Success status.
  */
-enum pabc_status pabc_free_attributes (struct pabc_context const *const ctx,
-                                       struct pabc_attributes **attrs);
+void pabc_free_attributes (struct pabc_context const *const ctx,
+                           struct pabc_attributes **attrs);
 
 #endif // PABC_ATTRIBUTES_H

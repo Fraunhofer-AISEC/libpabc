@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_SERIALIZE_H
 #define PABC_SERIALIZE_H
 

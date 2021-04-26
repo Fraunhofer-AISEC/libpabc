@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "attributes.h"
 
 enum pabc_status
@@ -22,13 +18,12 @@ pabc_attributes_add (struct pabc_context const *const ctx,
   if (name == NULL)
     print_and_return (PABC_UNINITIALIZED);
 
-  /*
-   * TODO implement check
   // check unqiue name
-  if (find_attribute_idx_by_name (ctx, pp, name) <
-      pp->nr_of_attributes)
-    return PABC_FAILURE;
-  */
+  for (size_t i = 0; i < attrs->nr_of_attributes; ++i)
+  {
+    if (0 == strcmp (name, attrs->attribute_names[i]))
+      print_and_return (PABC_FAILURE);
+  }
 
   char **new_an = realloc (attrs->attribute_names,
                            sizeof(char *) * (attrs->nr_of_attributes + 1));
@@ -72,23 +67,21 @@ pabc_new_attributes (struct pabc_context const *const ctx,
 }
 
 
-enum pabc_status
+void
 pabc_free_attributes (struct pabc_context const *const ctx,
                       struct pabc_attributes **attrs)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (attrs == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*attrs == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   for (size_t i = 0; i < (*attrs)->nr_of_attributes; ++i)
     PABC_FREE_NULL ((*attrs)->attribute_names[i]);
   PABC_FREE_NULL ((*attrs)->attribute_names);
   PABC_FREE_NULL (*attrs);
-
-  return PABC_OK;
 }
 
 
@@ -164,16 +157,16 @@ pabc_new_plain_attrs (
 }
 
 
-enum pabc_status
+void
 pabc_free_plain_attrs (struct pabc_context const *const ctx,
                        struct pabc_plain_attributes **plain_attrs)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (plain_attrs == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*plain_attrs == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   for (size_t i = 0; i < (*plain_attrs)->nr_of_attributes; ++i)
   {
@@ -184,8 +177,6 @@ pabc_free_plain_attrs (struct pabc_context const *const ctx,
   }
   PABC_FREE_NULL ((*plain_attrs)->attribute_values);
   PABC_FREE_NULL (*plain_attrs);
-
-  return PABC_OK;
 }
 
 

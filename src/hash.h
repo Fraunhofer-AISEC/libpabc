@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
 // using the relic library https://github.com/relic-toolkit/
 
 #ifndef HASH_H
@@ -46,7 +44,7 @@ enum pabc_status compute_hash (struct pabc_context *const ctx, bn_t
  */
 enum pabc_status new_hash_container (struct hash_container **hash);
 
-enum pabc_status free_hash_container (struct hash_container **h);
+void free_hash_container (struct hash_container **h);
 
 enum pabc_status reset_hash (struct pabc_context *const ctx);
 

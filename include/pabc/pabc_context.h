@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_CONTEXT_H
 #define PABC_CONTEXT_H
 
@@ -32,8 +28,7 @@ enum pabc_status pabc_new_ctx (struct pabc_context **ctx);
  * Frees the context and cleans up the RELIC core.
  *
  * \param [in,out] ctx the context to be freed (allocated by ::pabc_new_ctx).
- * \return Success status.
  */
-enum pabc_status pabc_free_ctx (struct pabc_context **ctx);
+void pabc_free_ctx (struct pabc_context **ctx);
 
 #endif // PABC_CONTEXT_H

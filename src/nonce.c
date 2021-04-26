@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "nonce.h"
 
 enum pabc_status
@@ -59,29 +55,22 @@ pabc_populate_nonce (struct pabc_context const *const ctx,
 }
 
 
-enum pabc_status
+void
 pabc_free_nonce (struct pabc_context const *const ctx,
                  struct pabc_nonce **nonce)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (nonce == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*nonce == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   RLC_TRY { bn_free (*nonce->nonce); }
-  RLC_CATCH_ANY {
-    PABC_FREE_NULL (*nonce);
-    *nonce = NULL;
-    print_and_return (PABC_RELIC_FAIL);
-  }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
 
   PABC_FREE_NULL (*nonce);
-  *nonce = NULL;
-
-  return PABC_OK;
 }
 
 

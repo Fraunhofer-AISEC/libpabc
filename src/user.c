@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "user.h"
 
 enum pabc_status
@@ -143,20 +139,20 @@ pabc_gen_credential_request (
 }
 
 
-enum pabc_status
+void
 pabc_free_credential_request (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_credential_request **cr)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (cr == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*cr == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   if ((*cr)->nonce)
     pabc_free_nonce (ctx, &(*cr)->nonce);
@@ -168,11 +164,9 @@ pabc_free_credential_request (
     bn_free (cr->C);
     bn_free (cr->S);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
   PABC_FREE_NULL (*cr);
-
-  return PABC_OK;
 }
 
 
@@ -331,19 +325,20 @@ pabc_new_proof (struct pabc_context const *const ctx,
 }
 
 
-enum pabc_status
-pabc_free_proof (struct pabc_context const *const ctx,
-                 struct pabc_public_parameters const *const public_parameters,
-                 struct pabc_blinded_proof **proof)
+void
+pabc_free_proof (
+  struct pabc_context const *const ctx,
+  struct pabc_public_parameters const *const public_parameters,
+  struct pabc_blinded_proof **proof)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (proof == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*proof == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   pabc_free_attribute_predicates (ctx, public_parameters, &(*proof)->DI);
 
@@ -385,14 +380,12 @@ pabc_free_proof (struct pabc_context const *const ctx,
     g1_free ((*proof)->Nym);
     g1_null ((*proof)->Nym);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
 
   pabc_free_nonce (ctx, &(*proof)->nonce);
 
   PABC_FREE_NULL (*proof);
-
-  return PABC_OK;
 }
 
 
@@ -765,32 +758,28 @@ pabc_populate_user_context (struct pabc_context *const ctx,
 }
 
 
-enum pabc_status
+void
 pabc_free_user_context (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_user_context **usr_ctx)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (usr_ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*usr_ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
-  RLC_TRY {
-    bn_free ((*usr_ctx)->sk);
-    for (size_t i = 0; i < public_parameters->nr_of_attributes; ++i)
-      PABC_FREE_NULL ((*usr_ctx)->plain_attrs[i]);
-    PABC_FREE_NULL ((*usr_ctx)->plain_attrs);
-    PABC_FREE_NULL ((*usr_ctx));
-  }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_TRY { bn_free ((*usr_ctx)->sk); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
-
-  return PABC_OK;
+  for (size_t i = 0; i < public_parameters->nr_of_attributes; ++i)
+    PABC_FREE_NULL ((*usr_ctx)->plain_attrs[i]);
+  PABC_FREE_NULL ((*usr_ctx)->plain_attrs);
+  PABC_FREE_NULL ((*usr_ctx));
 }
 
 
@@ -928,28 +917,26 @@ pabc_set_attribute_predicate (
 }
 
 
-enum pabc_status
+void
 pabc_free_attribute_predicates (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_attribute_predicates_D_I **DI)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (public_parameters == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (DI == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*DI == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   for (size_t i = 0; i < public_parameters->nr_of_attributes; ++i)
     PABC_FREE_NULL ((*DI)->I[i]);
   PABC_FREE_NULL ((*DI)->I);
   PABC_FREE_NULL ((*DI)->D);
   PABC_FREE_NULL (*DI);
-
-  return PABC_OK;
 }
 
 
@@ -1086,11 +1073,11 @@ pabc_user_mem_init (struct pabc_user_mem **const mem)
 }
 
 
-enum pabc_status
+void
 pabc_user_mem_free (struct pabc_user_mem **const mem)
 {
   if (! mem)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   RLC_TRY {
     bn_free ((*mem)->AttrsI);
     bn_free ((*mem)->cp);
@@ -1117,9 +1104,7 @@ pabc_user_mem_free (struct pabc_user_mem **const mem)
     g1_free ((*mem)->t2);
     g1_free ((*mem)->temp);
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
-  RLC_FINALLY {
-    PABC_FREE_NULL (*mem);
-    return PABC_OK;
-  }
+  RLC_CATCH_ANY {}
+  RLC_FINALLY {}
+  PABC_FREE_NULL (*mem);
 }

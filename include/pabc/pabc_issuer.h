@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #ifndef PABC_ISSUER_H
 #define PABC_ISSUER_H
 
@@ -48,11 +44,10 @@ pabc_new_public_parameters (struct pabc_context const *const ctx,
  * \param [in] ctx The global context to use.
  * \param [in,out] public_parameters The structure to be freed (allocated by
  * ::pabc_new_public_parameters).
- * \return Success status.
  */
-enum pabc_status
-pabc_free_public_parameters (struct pabc_context const *const ctx,
-                             struct pabc_public_parameters **public_parameters);
+void pabc_free_public_parameters (
+  struct pabc_context const *const ctx,
+  struct pabc_public_parameters **public_parameters);
 
 /*!
  * Populate issuer secret key. Must be kept secret by the issuer.
@@ -99,11 +94,9 @@ pabc_new_issuer_secret_key (struct pabc_context const *const ctx,
  * \param [in] ctx The global context to use.
  * \param [in,out] isk The structure to be freed (allocated by
  * ::pabc_new_issuer_secret_key).
- * \return Success status.
  */
-enum pabc_status
-pabc_free_issuer_secret_key (struct pabc_context const *const ctx,
-                             struct pabc_issuer_secret_key **isk);
+void pabc_free_issuer_secret_key (struct pabc_context const *const ctx,
+                                  struct pabc_issuer_secret_key **isk);
 
 /*!
  * Issue a credential. The issuer must first verify the submitted credential
@@ -151,9 +144,8 @@ enum pabc_status pabc_new_credential (
  * ::pabc_new_credential).
  * \param [in] public_parameters The public parameters to use (number of
  * attributes).
- * \return Success status.
  */
-enum pabc_status pabc_free_credential (
+void pabc_free_credential (
   struct pabc_context const *const ctx,
   struct pabc_public_parameters const *const public_parameters,
   struct pabc_credential **cred);

@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  **/
 
-
-
-
-
 #include "context.h"
 
 static unsigned int pabc_global_context_cntr = 0;
@@ -75,13 +71,13 @@ pabc_new_ctx (struct pabc_context **ctx)
 }
 
 
-enum pabc_status
+void
 pabc_free_ctx (struct pabc_context **ctx)
 {
   if (ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
   if (*ctx == NULL)
-    print_and_return (PABC_UNINITIALIZED);
+    return;
 
   --pabc_global_context_cntr;
 
@@ -94,10 +90,8 @@ pabc_free_ctx (struct pabc_context **ctx)
     if (pabc_global_context_cntr == 0)
       core_clean ();
   }
-  RLC_CATCH_ANY { print_and_return (PABC_RELIC_FAIL); }
+  RLC_CATCH_ANY {}
   RLC_FINALLY {}
   free_hash_container (&(*ctx)->hash);
   PABC_FREE_NULL (*ctx);
-
-  return PABC_OK;
 }
