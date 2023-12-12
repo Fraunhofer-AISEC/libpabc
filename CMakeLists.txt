@@ -40,6 +40,9 @@ ExternalProject_Get_Property(relic SOURCE_DIR)
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/include" DESTINATION ${CMAKE_INSTALL_PREFIX})
 
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 file(MAKE_DIRECTORY ${BINARY_DIR}/include)  # avoid race condition
 
 if(DEFINED PABC_DEBUG)
