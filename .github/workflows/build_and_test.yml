@@ -1,0 +1,35 @@
+name: build_and_test
+
+on:
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+      # Job is named 'build-and-test', runs on the latest Ubuntu runner
+
+    env:
+      BUILD_DIR: "build"
+
+    steps:
+    - uses: actions/checkout@v4
+      # Check out repository code
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y doxygen libgmp-dev libjansson-dev libb64-dev
+
+    - name: Build
+      run: |
+        mkdir $BUILD_DIR
+        cd $BUILD_DIR
+        cmake ..
+        make -j
+
+    - name: Run tests
+      run: |
+        cd $BUILD_DIR
+        make check
